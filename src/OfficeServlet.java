@@ -36,13 +36,15 @@ public class OfficeServlet implements Container
                 HUtils.generateHtmlHeader(body);
 
                 body.println("<form action = '/' >");
-                body.println("<h2>" + HUtils.htmlEncode("חיפוש לפי מספר כרטיס") + "</h2>");
-                body.println("<input name = 'ticket' autofocus/>");
-                body.println("<p></p>");
                 body.println("<h2>" + HUtils.htmlEncode("חיפוש לפי שם / אימייל") + "</h2>");
                 body.println("<input name = 'search_string' />");
                 body.println("<input type = 'hidden' name = 'action' value = 'search'/>");
                 body.println("<p></p>");
+
+                body.println("<h2>" + HUtils.htmlEncode("חיפוש לפי מספר כרטיס") + "</h2>");
+                body.println("<input name = 'ticket' autofocus/>");
+                body.println("<p></p>");
+
                 body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("חיפוש כרטיס") + "'/>");
                 body.println("</form>");
 
