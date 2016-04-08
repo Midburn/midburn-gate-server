@@ -180,13 +180,64 @@ public class OfficeServlet implements Container
                 HUtils.generateHtmlFooter(body);
                 body.close();
             }
+            else if (action.equals("pre_mark_entered"))
+            {
+                String ticketId = HUtils.safeInput(query.get("ticket_id"));
+
+                String sql = "select * from tickets where ticket_id='" + ticketId + "'";
+                ResultSet resultSet = statement.executeQuery(sql);
+                String name = "";
+                String document_id = "";
+                if (resultSet.next()){
+                    name = resultSet.getString("Name");
+                    document_id = resultSet.getString("document_id");
+                }
+
+
+                HUtils.generateResponseHeader(response);
+                HUtils.generateHtmlHeader(body);
+                body.println("<h2>" + HUtils.htmlEncode(name) + "</h2>");
+                body.println("<h2>" + HUtils.htmlEncode("ת.ז: " + document_id) + "</h2>");
+                body.println("<p>&nbsp;</p>");
+                body.println("<h3>" + HUtils.htmlEncode("חובה לבדוק תעודת זהות!") + "</h3>");
+
+                //mark entered button here
+                body.println("<form action = '/' >");
+                body.println("<input type = 'hidden' name = 'ticket_id' value = '" + ticketId + "'/>");
+                body.println("<input type = 'hidden' name = 'action' value = 'mark_entered'/>");
+                body.println("<br/>");
+                body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("אשר כניסה") + "'/>");
+                body.println("<a href='/'><input type = 'button' value = '" + HUtils.htmlEncode("ביטול") + "'/></a>");
+                body.println("</form>");
+
+                HUtils.generateHtmlFooter(body);
+                body.close();
+            }
+            else if (action.equals("mark_entered"))
+            {
+                String ticketId = HUtils.safeInput(query.get("ticket_id"));
+
+                statement.executeUpdate("insert into tickets_log select now(), tickets.* from tickets where ticket_id = " + ticketId);
+                statement.executeUpdate(
+                        "update tickets set Entrance_Date = Now() " +
+                                "where ticket_id = " + ticketId);
+
+                HUtils.generateResponseHeader(response);
+                HUtils.generateHtmlHeader(body);
+                body.println("<h2>" + HUtils.htmlEncode("אושר!") + "</h2>");
+                body.println("<h2><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h2>");
+                body.println("<script>setTimeout(function() {window.location.assign('/');}, 5000);</script>");
+
+                HUtils.generateHtmlFooter(body);
+                body.close();
+            }
             else if (action.equals("search"))
             {
                 HUtils.generateResponseHeader(response);
                 HUtils.generateHtmlHeader(body);
                 body.println("<h3><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h3>");
                 body.println(HUtils.htmlEncodeHtml("<h2>יש לוודא התאמה מול תעודה מזהה!</h2>"));
-                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td></tr>"));
+                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td><td>אשר כניסה</td></tr>"));
                 String searchString = HUtils.safeInput(query.get("search_string"));
                 String ticket = HUtils.safeInput(query.get("ticket"));
                 String sql;
@@ -230,7 +281,13 @@ public class OfficeServlet implements Container
                             "<a href='/?action=search&search_string=" + resultSet.getString("mail") + "'>" + resultSet.getString("mail") + "</a></td><td>" +
                             resultSet.getString("document_id") + "</td><td>" +
                             entrance_date + "</td><td>" +
-                            HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td></tr>"
+                            HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td><td>" +
+                            (entrance_date.isEmpty()
+                                    ?
+                                    "<a href=/?action=pre_mark_entered&ticket_id=" +
+                                            resultSet.getInt("ticket_id") + ">" + HUtils.htmlEncode("אשר") + "</a>"
+                                    : "") +
+                            "</td></tr>"
                     );
                 }
                 body.println("</table></div>");
