@@ -237,7 +237,7 @@ public class OfficeServlet implements Container
                 HUtils.generateHtmlHeader(body);
                 body.println("<h3><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h3>");
                 body.println(HUtils.htmlEncodeHtml("<h2>יש לוודא התאמה מול תעודה מזהה!</h2>"));
-                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td><td>אשר כניסה</td></tr>"));
+                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>אשר כניסה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td></tr>"));
                 String searchString = HUtils.safeInput(query.get("search_string"));
                 String ticket = HUtils.safeInput(query.get("ticket"));
                 String sql;
@@ -267,13 +267,17 @@ public class OfficeServlet implements Container
 
 
                     body.println("<tr><td>" +
-                                    (entrance_date.isEmpty()
-                                            ?
-                                            "<a href=/?action=update_ticket_1&ticket=" +
-                                                    resultSet.getInt("ticket_id") + "&order=" +
-                                                    resultSet.getInt("order_number") + ">" + HUtils.htmlEncode("עריכה") + "</a>"
-                                            : "") +
-                                            "</td><td>" +
+                            (entrance_date.isEmpty()
+                                    ?
+                                    "<a href=/?action=update_ticket_1&ticket=" +
+                                            resultSet.getInt("ticket_id") + "&order=" +
+                                            resultSet.getInt("order_number") + ">" + HUtils.htmlEncode("עריכה") + "</a>"
+                                    : "") + "</td><td>" +
+                            (entrance_date.isEmpty()
+                                    ?
+                                    "<a href=/?action=pre_mark_entered&ticket_id=" +
+                                            resultSet.getInt("ticket_id") + ">" + HUtils.htmlEncode("אשר") + "</a>"
+                                    : "") + "</td><td>" +
                             resultSet.getInt("ticket_id") + "</td><td>" +
                             resultSet.getInt("order_number") + "</td><td>" +
                             HUtils.htmlEncode(resultSet.getString("ticket_type")) + "</td><td>" +
@@ -281,13 +285,7 @@ public class OfficeServlet implements Container
                             "<a href='/?action=search&search_string=" + resultSet.getString("mail") + "'>" + resultSet.getString("mail") + "</a></td><td>" +
                             resultSet.getString("document_id") + "</td><td>" +
                             entrance_date + "</td><td>" +
-                            HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td><td>" +
-                            (entrance_date.isEmpty()
-                                    ?
-                                    "<a href=/?action=pre_mark_entered&ticket_id=" +
-                                            resultSet.getInt("ticket_id") + ">" + HUtils.htmlEncode("אשר") + "</a>"
-                                    : "") +
-                            "</td></tr>"
+                            HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td></tr>"
                     );
                 }
                 body.println("</table></div>");
