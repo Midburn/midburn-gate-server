@@ -186,7 +186,7 @@ public class OfficeServlet implements Container
                 HUtils.generateHtmlHeader(body);
                 body.println("<h3><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h3>");
                 body.println(HUtils.htmlEncodeHtml("<h2>יש לוודא התאמה מול תעודה מזהה!</h2>"));
-                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>מספר כרטיס</td><td>מספר הזמנה</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td></tr>"));
+                body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td></tr>"));
                 String searchString = HUtils.safeInput(query.get("search_string"));
                 String ticket = HUtils.safeInput(query.get("ticket"));
                 String sql;
