@@ -198,6 +198,7 @@ public class OfficeServlet implements Container
                 HUtils.generateHtmlHeader(body);
                 body.println("<h2>" + HUtils.htmlEncode(name) + "</h2>");
                 body.println("<h2>" + HUtils.htmlEncode("ת.ז: " + document_id) + "</h2>");
+                body.println("<h2>" + HUtils.htmlEncode("מספר כרטיס: " + ticketId) + "</h2>");
                 body.println("<p>&nbsp;</p>");
                 body.println("<h3>" + HUtils.htmlEncode("חובה לבדוק תעודת זהות!") + "</h3>");
 
