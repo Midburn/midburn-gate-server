@@ -11,7 +11,9 @@ public class Main
 {
     public static String DB_CONNECTION_STRING = "jdbc:mysql://localhost/midburn?useUnicode=true&characterEncoding=utf8";
     public static boolean earlyArrivalMode = false;
+    public static LoginManger loginMgr;
 
+    
     public static void main(String[] args) throws Exception
     {
         if (args.length > 1) {
@@ -25,6 +27,8 @@ public class Main
                 earlyArrivalMode = true;
             }
         }
+        
+        loginMgr = new LoginManger();
 
         Container container = new GateServlet();
         Server server = new ContainerServer(container);
