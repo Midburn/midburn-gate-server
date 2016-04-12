@@ -42,7 +42,7 @@ public class Administration
                     statement.setString(5, csvRecord.get("ticket barcode"));
                     statement.setString(6, csvRecord.get("Ticket Type").replaceAll("\\(.+\\)", ""));
                     statement.setString(7, csvRecord.get("Buyers E-mail"));
-                    statement.setString(8, csvRecord.get("E-mail"));
+                    statement.setString(8, csvRecord.get("Docment id"));
                     statement.setBoolean(9, (csvRecord.get("Arrive early").equals("1")));
 
                     statement.execute();
