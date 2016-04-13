@@ -22,9 +22,7 @@ public class OfficeServlet implements Container
         try
         {
             Query query = request.getQuery();
-            String clientAddress = request.getClientAddress().getHostString();
-            
-            
+                      
             String action = "menu";
             if (query.get("action") != null)
             {
@@ -32,18 +30,23 @@ public class OfficeServlet implements Container
             }
             
             PrintStream body = response.getPrintStream();
-            
+            boolean login_success = false;
+            boolean login_try = false;
+            boolean logged_out = false;
               
             if (action.equals("login"))
             {
-            	LoginHandler(request, response, query, body);	
+            	login_success = LoginHandler(request, response, query, body);
+            	action = "menu";
+            	login_try = true;
             }
             else if (action.equals("logout"))
             {
-            	LogoutHandler(request, response, query, body);	
+            	LogoutHandler(request, response, query, body);
+            	logged_out = true;
             }
-              
-            if (Main.loginMgr.IsLoginValid(clientAddress))
+            
+            if ((login_success || IsLoginValid(request))&!logged_out)
             {
                 // Connect to the DB
                 //Class.forName("com.mysql.jdbc.Driver");
@@ -81,20 +84,7 @@ public class OfficeServlet implements Container
             }
             else
             {
-    			HUtils.generateResponseHeader(response);
-    			HUtils.generateHtmlHeader(body);
-    			body.println("<form action = '/' >");
-    			body.println("<h2>" + HUtils.htmlEncode("שם משתמש") + "</h2>");
-    			body.println("<input name = 'user' autofocus/>");
-    			body.println("<p></p>");
-    			body.println("<h2>" + HUtils.htmlEncode("סיסמא") + "</h2>");
-    			body.println("<input name = 'pass' />");
-    			body.println("<input type = 'hidden' name = 'action' value = 'login'/>");
-    			body.println("<p></p>");
-    			body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("כנס") + "'/>");
-    			body.println("</form>");
-    			HUtils.generateHtmlFooter(body);
-    			body.close();	
+    			LoginFormHandler(response, body,login_try&!login_success);	
             }
 
             
@@ -129,35 +119,65 @@ public class OfficeServlet implements Container
         }
     }
 
-    /************************************Action Handlers****************************************/
+
+
+	/************************************Action Handlers****************************************/
    
-	private void LoginHandler(Request request, Response response, Query query, PrintStream body) {
+	private void LoginFormHandler(Response response, PrintStream body, boolean failed) {
+		HUtils.generateResponseHeader(response);
+		HUtils.generateHtmlHeader(body);
+		body.println("<form action = '/' >");
+		body.println("<h2>" + HUtils.htmlEncode("שם משתמש") + "</h2>");
+		body.println("<input name = 'user' autofocus/>");
+		body.println("<p></p>");
+		body.println("<h2>" + HUtils.htmlEncode("סיסמא") + "</h2>");
+		body.println("<input name = 'pass' />");
+		body.println("<input type = 'hidden' name = 'action' value = 'login'/>");
+		body.println("<p></p>");
+		body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("כנס") + "'/>");
+		body.println("</form>");
+		if (failed)
+		{
+			body.println("<font color='red'>" + HUtils.htmlEncode("סיסמא שגויה נסה שנית") + "</font>");
+		}
+		HUtils.generateHtmlFooter(body);
+		body.close();
+	}
+	
+    private boolean IsLoginValid(Request request) {
+    	Cookie token_cookie = request.getCookie("token");		
+		String token = token_cookie!=null?token_cookie.getValue():"";				
+		return (token != null && token.equals(Main.LOGIN_TOKEN));	
+	}
+    
+	private boolean LoginHandler(Request request, Response response, Query query, PrintStream body) throws SQLException {
 		String user = query.get("user");
 		String pass = query.get("pass");
 		
 		if (user != null && user.equals(USERNAME) && pass != null && pass.equals(PASSWORD)) 
-		{
-			Main.loginMgr.Login(request.getClientAddress().getHostString());
-			
-			HUtils.generateResponseHeader(response);
-			HUtils.generateHtmlHeader(body);
-			body.println("<h2>" + HUtils.htmlEncode("ההזדהות הצליחה") + "</h2>");
-			body.println("<h2><a href='/'>" + HUtils.htmlEncode("לתפריט") + "</a></h2>");
-			HUtils.generateHtmlFooter(body);
-			body.close();
+		{			
+			response.setCookie(new Cookie("token", Main.LOGIN_TOKEN));
+//			HUtils.generateResponseHeader(response);
+//			HUtils.generateHtmlHeader(body);
+//			body.println("<h2>" + HUtils.htmlEncode("ההזדהות הצליחה") + "</h2>");
+//			body.println("<h2><a href='/'>" + HUtils.htmlEncode("לתפריט") + "</a></h2>");
+//			HUtils.generateHtmlFooter(body);
+//			body.close();
+			return true;
 		}
 		else
 		{
-			HUtils.generateResponseHeader(response);
-			HUtils.generateHtmlHeader(body);
-			body.println("<h2>" + HUtils.htmlEncode("ההזדהות נכשלה") + "</h2>");
-			HUtils.generateHtmlFooter(body);
-			body.close();
+//			HUtils.generateResponseHeader(response);
+//			HUtils.generateHtmlHeader(body);
+//			body.println("<h2>" + HUtils.htmlEncode("ההזדהות נכשלה") + "</h2>");
+//			HUtils.generateHtmlFooter(body);
+//			body.close();
+			return false;
 		}
 	}
 	
 	private void LogoutHandler(Request request, Response response, Query query, PrintStream body) {		
-		Main.loginMgr.Logout(request.getClientAddress().getHostString());
+		response.setCookie(new Cookie("token", ""));
 	}
 
 	private void StatsHandler(Response response, Statement statement, PrintStream body) throws SQLException {
@@ -369,9 +389,9 @@ public class OfficeServlet implements Container
 		HUtils.generateResponseHeader(response);
 		HUtils.generateHtmlHeader(body);
 		body.println("<a href='/?action=logout'>" + HUtils.htmlEncode("התנתק") +"</a>");
-		if (Main.earlyArrivalMode)
+		if (Main.EARLY_ARRIVAL_MODE)
 		{
-			body.println("<h2>" + HUtils.htmlEncode("סטסטוס הגעה: הגעה מוקדמת") + "</h2>");
+			body.println("<h2>" + HUtils.htmlEncode("סטסטוס הגעה: מוקדמת") + "</h2>");
 			body.println("<a href='/?action=change_arrival_mode'>" + HUtils.htmlEncode("העבר למצב הגעה רגיל") +"</a>");
 		}
 		else	
@@ -409,6 +429,6 @@ public class OfficeServlet implements Container
 	}
 
     private void ArrivalHandler() {
-    	Main.earlyArrivalMode = !Main.earlyArrivalMode;
+    	Main.EARLY_ARRIVAL_MODE = !Main.EARLY_ARRIVAL_MODE;
 	}
 }
