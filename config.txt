@@ -4,6 +4,4 @@
 	"admin_password": "admin",
 	"admin_username": "admin",
 	"early_arrival_mode": "True",
-	"csv_load_mode": "False",
-	"csv_file_location": "123.csv"
 }
