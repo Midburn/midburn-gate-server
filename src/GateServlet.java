@@ -131,7 +131,7 @@ public class GateServlet implements Container
                                 message = "הכרטיס כבר נקרא בעבר!";
                             } else if (cancelledTicket) {
                                 message = "הכרטיס בוטל!";
-                            } else if (Main.earlyArrivalMode && !early_arrival)
+                            } else if (Main.EARLY_ARRIVAL_MODE && !early_arrival)
                             {
                                 message = "אין אישור להגעה מוקדמת";
                             }
