@@ -18,29 +18,28 @@ public class Main
     public static boolean EARLY_ARRIVAL_MODE;
     public static int SERVER_PORT;
     public static int CLIENT_PORT;
-    
+
+    public static String CONFIG_FILE = "config.txt";
+
+    public static boolean earlyArrivalMode = false;
+
     public static void main(String[] args) throws Exception
     {    	
     	try
     	{
-	        if (args.length == 2) {
-	        	
-	            if (args[0].equals("config")) {
-	            	loadParams(args[1]);
-	            }
-	            else
-	            {
-		            if (args[0].equals("load")) {
-		                Administration.loadFromFile(args[1]);    
-		            }
-	            System.exit(0);
-	            }
-	        }
-	        else
-	        {
-	        	usageMSG();
-	        	System.exit(0);
-	        }
+            loadParams();
+
+            if (args.length > 1) {
+                if (args[0].equals("load")) {
+                    Administration.loadFromFile(args[1]);
+                    System.exit(0);
+                }
+            }
+            else if (args.length == 1) {
+                if (args[0].equals("early")) {
+                    earlyArrivalMode = true;
+                }
+            }
     	}
     	catch (Exception e)
     	{
@@ -73,9 +72,9 @@ public class Main
     	System.out.println("\toption 2:java -jar MidburnGate.jar config [config file path]");
     }
     
-    public static void loadParams(String path) throws IOException, ParseException
+    public static void loadParams() throws IOException, ParseException
     {
-    	Configuration config = new Configuration(path);
+    	Configuration config = new Configuration(CONFIG_FILE);
     	
         EARLY_ARRIVAL_MODE = Boolean.parseBoolean(config.getAttribute("early_arrival_mode"));
         DB_CONNECTION_STRING = config.getAttribute("db_connection_string");

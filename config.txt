@@ -3,6 +3,5 @@
 	"server_port": "8080",
 	"db_connection_string": "jdbc:mysql://localhost/midburn?useUnicode=true&characterEncoding=utf8",
 	"admin_password": "admin",
-	"admin_username": "admin",
-	"early_arrival_mode": "False"
+	"admin_username": "admin"
 }
