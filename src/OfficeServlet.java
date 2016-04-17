@@ -78,55 +78,11 @@ public class OfficeServlet implements Container
 				}
 				else if (action.equals("pre_mark_entered"))
 				{
-					String ticketId = HUtils.safeInput(query.get("ticket_id"));
-
-					String sql = "select * from tickets where ticket_id='" + ticketId + "'";
-					ResultSet resultSet = statement.executeQuery(sql);
-					String name = "";
-					String document_id = "";
-					if (resultSet.next()){
-						name = resultSet.getString("Name");
-						document_id = resultSet.getString("document_id");
-					}
-
-
-					HUtils.generateResponseHeader(response);
-					HUtils.generateHtmlHeader(body);
-					body.println("<h2>" + HUtils.htmlEncode(name) + "</h2>");
-					body.println("<h2>" + HUtils.htmlEncode("ת.ז: " + document_id) + "</h2>");
-					body.println("<h2>" + HUtils.htmlEncode("מספר כרטיס: " + ticketId) + "</h2>");
-					body.println("<p>&nbsp;</p>");
-					body.println("<h3>" + HUtils.htmlEncode("חובה לבדוק תעודת זהות!") + "</h3>");
-
-					//mark entered button here
-					body.println("<form action = '/' >");
-					body.println("<input type = 'hidden' name = 'ticket_id' value = '" + ticketId + "'/>");
-					body.println("<input type = 'hidden' name = 'action' value = 'mark_entered'/>");
-					body.println("<br/>");
-					body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("אשר כניסה") + "'/>");
-					body.println("<a href='/'><input type = 'button' value = '" + HUtils.htmlEncode("ביטול") + "'/></a>");
-					body.println("</form>");
-
-					HUtils.generateHtmlFooter(body);
-					body.close();
+					PreMarkEnteredHandler(response, query, statement, body);
 				}
 				else if (action.equals("mark_entered"))
 				{
-					String ticketId = HUtils.safeInput(query.get("ticket_id"));
-
-					statement.executeUpdate("insert into tickets_log select now(), tickets.* from tickets where ticket_id = " + ticketId);
-					statement.executeUpdate(
-							"update tickets set Entrance_Date = Now() " +
-									"where ticket_id = " + ticketId);
-
-					HUtils.generateResponseHeader(response);
-					HUtils.generateHtmlHeader(body);
-					body.println("<h2>" + HUtils.htmlEncode("אושר!") + "</h2>");
-					body.println("<h2><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h2>");
-					body.println("<script>setTimeout(function() {window.location.assign('/');}, 5000);</script>");
-
-					HUtils.generateHtmlFooter(body);
-					body.close();
+					MarkEnteredHandler(response, query, statement, body);
 				}
 
 
@@ -209,21 +165,10 @@ public class OfficeServlet implements Container
 		if (user != null && user.equals(USERNAME) && pass != null && pass.equals(PASSWORD))
 		{
 			response.setCookie(new Cookie("token", Main.LOGIN_TOKEN));
-//			HUtils.generateResponseHeader(response);
-//			HUtils.generateHtmlHeader(body);
-//			body.println("<h2>" + HUtils.htmlEncode("ההזדהות הצליחה") + "</h2>");
-//			body.println("<h2><a href='/'>" + HUtils.htmlEncode("לתפריט") + "</a></h2>");
-//			HUtils.generateHtmlFooter(body);
-//			body.close();
 			return true;
 		}
 		else
 		{
-//			HUtils.generateResponseHeader(response);
-//			HUtils.generateHtmlHeader(body);
-//			body.println("<h2>" + HUtils.htmlEncode("ההזדהות נכשלה") + "</h2>");
-//			HUtils.generateHtmlFooter(body);
-//			body.close();
 			return false;
 		}
 	}
@@ -258,6 +203,58 @@ public class OfficeServlet implements Container
 		body.println("<h3><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h3>");
 		HUtils.generateHtmlFooter(body);
 		resultSet.close();
+		body.close();
+	}
+
+	private void MarkEnteredHandler(Response response, Query query, Statement statement, PrintStream body) throws SQLException{
+		String ticketId = HUtils.safeInput(query.get("ticket_id"));
+
+		statement.executeUpdate("insert into tickets_log select now(), tickets.* from tickets where ticket_id = " + ticketId);
+		statement.executeUpdate(
+				"update tickets set Entrance_Date = Now() " +
+						"where ticket_id = " + ticketId);
+
+		HUtils.generateResponseHeader(response);
+		HUtils.generateHtmlHeader(body);
+		body.println("<h2>" + HUtils.htmlEncode("אושר!") + "</h2>");
+		body.println("<h2><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h2>");
+		body.println("<script>setTimeout(function() {window.location.assign('/');}, 5000);</script>");
+
+		HUtils.generateHtmlFooter(body);
+		body.close();
+	}
+
+	private void PreMarkEnteredHandler(Response response, Query query, Statement statement, PrintStream body) throws SQLException{
+		String ticketId = HUtils.safeInput(query.get("ticket_id"));
+
+		String sql = "select * from tickets where ticket_id='" + ticketId + "'";
+		ResultSet resultSet = statement.executeQuery(sql);
+		String name = "";
+		String document_id = "";
+		if (resultSet.next()){
+			name = resultSet.getString("Name");
+			document_id = resultSet.getString("document_id");
+		}
+
+
+		HUtils.generateResponseHeader(response);
+		HUtils.generateHtmlHeader(body);
+		body.println("<h2>" + HUtils.htmlEncode(name) + "</h2>");
+		body.println("<h2>" + HUtils.htmlEncode("ת.ז: " + document_id) + "</h2>");
+		body.println("<h2>" + HUtils.htmlEncode("מספר כרטיס: " + ticketId) + "</h2>");
+		body.println("<p>&nbsp;</p>");
+		body.println("<h3>" + HUtils.htmlEncode("חובה לבדוק תעודת זהות!") + "</h3>");
+
+		//mark entered button here
+		body.println("<form action = '/' >");
+		body.println("<input type = 'hidden' name = 'ticket_id' value = '" + ticketId + "'/>");
+		body.println("<input type = 'hidden' name = 'action' value = 'mark_entered'/>");
+		body.println("<br/>");
+		body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("אשר כניסה") + "'/>");
+		body.println("<a href='/'><input type = 'button' value = '" + HUtils.htmlEncode("ביטול") + "'/></a>");
+		body.println("</form>");
+
+		HUtils.generateHtmlFooter(body);
 		body.close();
 	}
 
