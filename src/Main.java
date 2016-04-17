@@ -69,7 +69,6 @@ public class Main
     public static void usageMSG()
     {
     	System.out.println("usage\toption 1:java -jar MidburnGate.jar load [csv file path]");
-    	System.out.println("\toption 2:java -jar MidburnGate.jar config [config file path]");
     }
     
     public static void loadParams() throws IOException, ParseException
