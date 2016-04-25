@@ -13,12 +13,18 @@ public class Configuration {
 	public Configuration(String path) throws IOException, ParseException
 	{    
 		Object obj = parser.parse(new FileReader(path));
-		jsonObject = (JSONObject) obj;	
+		jsonObject = (JSONObject) obj;				
 	}
 		
-	String getAttribute(String name)
+	String getAttribute(String name) throws ParseException
 	{
-		return (String)jsonObject.get(name);
+		Object value = null;
+		
+		value = jsonObject.get(name);
+		if (value==null)
+			 throw new ParseException(0);
+
+		return (String)value;
 	}
 	
 	

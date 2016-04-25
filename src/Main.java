@@ -24,7 +24,7 @@ public class Main
     public static boolean earlyArrivalMode = false;
 
     public static void main(String[] args) throws Exception
-    {    	
+    {   
     	try
     	{
             loadParams();
@@ -75,7 +75,7 @@ public class Main
     {
     	Configuration config = new Configuration(CONFIG_FILE);
     	
-        EARLY_ARRIVAL_MODE = Boolean.parseBoolean(config.getAttribute("early_arrival_mode"));
+        //EARLY_ARRIVAL_MODE = Boolean.parseBoolean(config.getAttribute("early_arrival_mode"));
         DB_CONNECTION_STRING = config.getAttribute("db_connection_string");
         SERVER_PORT = Integer.parseInt(config.getAttribute("server_port"));
         CLIENT_PORT = Integer.parseInt(config.getAttribute("client_port"));   
