@@ -38,39 +38,11 @@ public class GateServlet implements Container
             String clientAddress = request.getClientAddress().getHostString();
             if (action.equals("login"))
             {
-                ResultSet set = statement.executeQuery("SELECT * from shifts WHERE ip = '" + clientAddress + "' and end_date is NULL");
-                String color;
-                if (set.next())
-                {
-                    message = "העמדה פתוחה מהמשמרת הקודמת. יש לסגור לפני פתיחה מחדש.";
-                    color = "red";
-                }
-                else {
-                    String gater = HUtils.safeInput(query.get("gater"));
-                    String sql = "INSERT into shifts(start_date, end_date, ip, gater) " +
-                            "VALUES (now(), null, '" + clientAddress + "', '" + gater + "')";
-                    statement.execute(sql);
-                    message = "העמדה נפתחה";
-                    color = "green";
-                }
-
-                HUtils.generateResponseHeader(response);
-                JSONObject object = new JSONObject();
-                object.put("message", HUtils.htmlEncode(message));
-                object.put("color", color);
-                body.println(object);
-                body.close();
+                LoginHandler(response, query, statement, body, clientAddress);
             }
             else if (action.equals("logout"))
             {
-                String sql = "UPDATE shifts set end_date = now() WHERE end_date is null and ip = '" + clientAddress + "'";
-                statement.execute(sql);
-                HUtils.generateResponseHeader(response);
-                JSONObject object = new JSONObject();
-                object.put("message", HUtils.htmlEncode("העמדה נסגרה"));
-                object.put("color", "green");
-                body.println(object);
-                body.close();
+                LogoutHandler(response, statement, body, clientAddress);
             }
 
             int shiftId = 0;
@@ -102,11 +74,12 @@ public class GateServlet implements Container
 
                     String ticket_number = "";
                     String name = "";
-                    String ticket_type = "";
+                    int ticket_type=0;
                     String entrance_date = "";
                     String order_number = "";
                     boolean early_arrival;
                     boolean cancelledTicket;
+                    boolean disabled_parking = false;
 
                     if (action.equals("entrance") && !Ticket.validateTicketBarcode(ticketBarcode)) {
                         message = "ברקוד לא תקין. חשד לכרטיס מזויף!";
@@ -119,8 +92,9 @@ public class GateServlet implements Container
                             ticket_number = resultSet.getString("ticket_id");
                             name = resultSet.getString("Name");
                             order_number = resultSet.getString("order_number");
-                            ticket_type = resultSet.getString("ticket_type");
+                            ticket_type = resultSet.getInt("ticket_type");
                             early_arrival = resultSet.getBoolean("early_arrival");
+                            disabled_parking = resultSet.getBoolean("disabled_parking");
                             Time entrance_time = resultSet.getTime("Entrance_Date");
                             Date entrance_date_obj = resultSet.getDate("Entrance_Date");
                             if (entrance_date_obj != null && entrance_time != null) {
@@ -159,7 +133,8 @@ public class GateServlet implements Container
                     object.put("order_number", order_number);
                     object.put("ticket_number", ticket_number);
                     object.put("name", HUtils.htmlEncode(name));
-                    object.put("ticket_type", HUtils.htmlEncode(ticket_type));
+                    object.put("ticket_type", HUtils.htmlEncode(Ticket.getTicketType(ticket_type)));
+                    object.put("disabled_parking", disabled_parking?HUtils.htmlEncode("יש"):HUtils.htmlEncode("אין"));
                     object.put("entrance_date", entrance_date);
                     object.put("color", color);
                     object.put("message", HUtils.htmlEncode(message));
@@ -196,31 +171,12 @@ public class GateServlet implements Container
                     body.close();
                 }
                 else if (action.equals("counter")) {
-                    int entranceCounter = 0;
-                    ResultSet resultSet = statement.executeQuery("select count(*) as cnt from tickets where shift_id = " + shiftId);
-                    if (resultSet.next()) {
-                        entranceCounter = resultSet.getInt("cnt");
-                        resultSet.close();
-                    }
-
-                    HUtils.generateResponseHeader(response);
-                    JSONObject object = new JSONObject();
-                    object.put("entrance_counter", entranceCounter);
-                    object.put("ip", clientAddress);
-                    body.println(object);
-
-                    // Sending response
-                    body.close();
+                    CounterHandler(response, statement, body, clientAddress, shiftId);
                 }
             }
             else // No login
             {
-                HUtils.generateResponseHeader(response);
-                JSONObject object = new JSONObject();
-                object.put("color", "red");
-                object.put("message", HUtils.htmlEncode("העמדה נעולה, אנא פנה לאחראי המשמרת!"));
-                body.println(object);
-                body.close();
+                NoLoginHandler(response, body);
             }
             statement.close();
             connection.close();
@@ -239,5 +195,72 @@ public class GateServlet implements Container
             }
         }
     }
+
+	private void NoLoginHandler(Response response, PrintStream body) {
+		HUtils.generateResponseHeader(response);
+		JSONObject object = new JSONObject();
+		object.put("color", "red");
+		object.put("message", HUtils.htmlEncode("העמדה נעולה, אנא פנה לאחראי המשמרת!"));
+		body.println(object);
+		body.close();
+	}
+
+	private void CounterHandler(Response response, Statement statement, PrintStream body, String clientAddress,
+			int shiftId) throws SQLException {
+		int entranceCounter = 0;
+		ResultSet resultSet = statement.executeQuery("select count(*) as cnt from tickets where shift_id = " + shiftId);
+		if (resultSet.next()) {
+		    entranceCounter = resultSet.getInt("cnt");
+		    resultSet.close();
+		}
+
+		HUtils.generateResponseHeader(response);
+		JSONObject object = new JSONObject();
+		object.put("entrance_counter", entranceCounter);
+		object.put("ip", clientAddress);
+		body.println(object);
+
+		// Sending response
+		body.close();
+	}
+
+	private void LogoutHandler(Response response, Statement statement, PrintStream body, String clientAddress)
+			throws SQLException {
+		String sql = "UPDATE shifts set end_date = now() WHERE end_date is null and ip = '" + clientAddress + "'";
+		statement.execute(sql);
+		HUtils.generateResponseHeader(response);
+		JSONObject object = new JSONObject();
+		object.put("message", HUtils.htmlEncode("העמדה נסגרה"));
+		object.put("color", "green");
+		body.println(object);
+		body.close();
+	}
+
+	private void LoginHandler(Response response, Query query, Statement statement, PrintStream body,
+			String clientAddress) throws SQLException {
+		String message;
+		ResultSet set = statement.executeQuery("SELECT * from shifts WHERE ip = '" + clientAddress + "' and end_date is NULL");
+		String color;
+		if (set.next())
+		{
+		    message = "העמדה פתוחה מהמשמרת הקודמת. יש לסגור לפני פתיחה מחדש.";
+		    color = "red";
+		}
+		else {
+		    String gater = HUtils.safeInput(query.get("gater"));
+		    String sql = "INSERT into shifts(start_date, end_date, ip, gater) " +
+		            "VALUES (now(), null, '" + clientAddress + "', '" + gater + "')";
+		    statement.execute(sql);
+		    message = "העמדה נפתחה";
+		    color = "green";
+		}
+
+		HUtils.generateResponseHeader(response);
+		JSONObject object = new JSONObject();
+		object.put("message", HUtils.htmlEncode(message));
+		object.put("color", color);
+		body.println(object);
+		body.close();
+	}
 
 }
