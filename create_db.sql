@@ -1,8 +1,5 @@
 create database midburn DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 use midburn;
-CREATE USER midburn IDENTIFIED BY 'midburn';
-grant usage on *.* to midburn@localhost identified by 'midburn';
-grant all privileges on midburn.* to midburn@localhost;
 
 CREATE TABLE tickets
 (
@@ -18,7 +15,7 @@ CREATE TABLE tickets
   entrance_date DATETIME,
   shift_id INT,
   early_arrival TINYINT DEFAULT 0,
-  disabled_parking TINYINT DEFAULT 0,
+  disabled_parking TINYINT DEFAULT 0
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, early_arrival)
@@ -53,3 +50,7 @@ CREATE TABLE tickets_log
   shift_id INT,
   early_arrival TINYINT DEFAULT 0
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+--CREATE USER midburn IDENTIFIED BY 'midburn';
+--grant usage on *.* to midburn@localhost identified by 'midburn';
+--grant all privileges on midburn.* to midburn@localhost;
