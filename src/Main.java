@@ -19,7 +19,7 @@ public class Main
     public static int SERVER_PORT;
     public static int CLIENT_PORT;
 
-    public static String CONFIG_FILE = "C:\\Users\\ehariri\\Desktop\\abc\\midburn-gate-server\\config.txt";
+    public static String CONFIG_FILE = "config.txt";
 
     public static boolean earlyArrivalMode = false;
 

@@ -74,7 +74,7 @@ public class GateServlet implements Container
 
                     String ticket_number = "";
                     String name = "";
-                    int ticket_type=0;
+                    String ticket_type= "";
                     String entrance_date = "";
                     String order_number = "";
                     boolean early_arrival;
@@ -92,9 +92,9 @@ public class GateServlet implements Container
                             ticket_number = resultSet.getString("ticket_id");
                             name = resultSet.getString("Name");
                             order_number = resultSet.getString("order_number");
-                            ticket_type = resultSet.getInt("ticket_type");
+                            ticket_type = resultSet.getString("ticket_type");
                             early_arrival = resultSet.getBoolean("early_arrival");
-                            disabled_parking = resultSet.getBoolean("disabled_parking");
+                            disabled_parking = (resultSet.getBoolean("disabled_parking"));
                             Time entrance_time = resultSet.getTime("Entrance_Date");
                             Date entrance_date_obj = resultSet.getDate("Entrance_Date");
                             if (entrance_date_obj != null && entrance_time != null) {
@@ -133,8 +133,8 @@ public class GateServlet implements Container
                     object.put("order_number", order_number);
                     object.put("ticket_number", ticket_number);
                     object.put("name", HUtils.htmlEncode(name));
-                    object.put("ticket_type", HUtils.htmlEncode(Ticket.getTicketType(ticket_type)));
-                    object.put("disabled_parking", disabled_parking?HUtils.htmlEncode("יש"):HUtils.htmlEncode("אין"));
+                    object.put("ticket_type", HUtils.htmlEncode(ticket_type));
+                    object.put("disabled_parking", disabled_parking);
                     object.put("entrance_date", entrance_date);
                     object.put("color", color);
                     object.put("message", HUtils.htmlEncode(message));
