@@ -17,7 +17,8 @@ CREATE TABLE tickets
   cancelled TINYINT DEFAULT 0 NOT NULL,
   entrance_date DATETIME,
   shift_id INT,
-  early_arrival TINYINT DEFAULT 0
+  early_arrival TINYINT DEFAULT 0,
+  disabled_parking TINYINT DEFAULT 0,
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, early_arrival)
