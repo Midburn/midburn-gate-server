@@ -264,7 +264,7 @@ public class OfficeServlet implements Container
 		HUtils.generateHtmlHeader(body);
 		body.println("<h3><a href='/'>" + HUtils.htmlEncode("חזרה לתפריט") + "</a></h3>");
 		body.println(HUtils.htmlEncodeHtml("<h2>יש לוודא התאמה מול תעודה מזהה!</h2>"));
-		body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>אשר כניסה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td></tr>"));
+		body.println(HUtils.htmlEncodeHtml("<div class='CSSTableGenerator'><table dir='rtl' border=1><tr><td>עריכה</td><td>אשר כניסה</td><td>מספר הזמנה</td><td>מספר כרטיס</td><td>סוג כרטיס</td><td>שם</td><td>אימייל</td><td>ת.ז.</td><td>תאריך כניסה</td><td>הגעה מוקדמת</td><td>חניית נכים</td></tr>"));
 
 		String searchString = HUtils.safeInput(query.get("search_string"));
 		String ticket = HUtils.safeInput(query.get("ticket"));
@@ -313,7 +313,8 @@ public class OfficeServlet implements Container
 					"<a href='/?action=search&search_string=" + resultSet.getString("mail") + "'>" + resultSet.getString("mail") + "</a></td><td>" +
 					resultSet.getString("document_id") + "</td><td>" +
 					entrance_date + "</td><td>" +
-					HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td></tr>"
+					HUtils.htmlEncode(resultSet.getBoolean("early_arrival") ? "יש אישור" : "") + "</td><td>" +
+					HUtils.htmlEncode(resultSet.getBoolean("disabled_parking") ? "יש אישור" : "") + "</td></tr>"
 			);
 		}
 		body.println("</table></div>");
@@ -329,12 +330,14 @@ public class OfficeServlet implements Container
 		String mail = HUtils.safeInput(query.get("mail"));
 		String document_id = HUtils.safeInput(query.get("document_id"));
 		String early_arrival = HUtils.safeInput(query.get("early_arrival"));
+		String disabled_parking = HUtils.safeInput(query.get("disabled_parking"));
 
 		statement.executeUpdate("insert into tickets_log select now(), tickets.* from tickets where ticket_id = " + ticketId);
 
 		statement.executeUpdate("update tickets set Name = '" + name +
 				"', mail = '" + mail + "', " +
-				(early_arrival.equals("on") ? "early_arrival = 1" : "early_arrival = null") + ", " +
+				(early_arrival.equals("on") ? "early_arrival = 1" : "early_arrival = 0") + ", " +
+				(disabled_parking.equals("on") ? "disabled_parking = 1" : "disabled_parking = 0") + ", " +
 				"document_id = '" + document_id + "'" +
 				" where ticket_id = " + ticketId);
 		HUtils.generateResponseHeader(response);
@@ -373,6 +376,7 @@ public class OfficeServlet implements Container
 		String message = null;
 		int orderNumber = 0;
 		boolean early_arrival = false;
+		boolean disabled_parking = false;
 
 		boolean ticketOK = false;
 
@@ -386,6 +390,7 @@ public class OfficeServlet implements Container
 			entrance_date = resultSet.getDate("Entrance_Date");
 			orderNumber = resultSet.getInt("order_number");
 			early_arrival = resultSet.getBoolean("early_arrival");
+			disabled_parking = resultSet.getBoolean("disabled_parking");
 
 			ticketOK = true;
 		}
@@ -414,6 +419,7 @@ public class OfficeServlet implements Container
 			body.println("<h2>" + HUtils.htmlEncode("אימייל משתתף: ") + "</h2><input name = 'mail' value = '" + HUtils.htmlEncode(mail) + "' /><br/>");
 			body.println("<h2>" + HUtils.htmlEncode("ת.ז. משתתף: ") + "</h2><input name = 'document_id' value = '" + HUtils.htmlEncode(document_id) + "' /><br/>");
 			body.println("<br/><input type = 'checkbox' name = 'early_arrival' " + (early_arrival ? "checked" : "") + ">" + HUtils.htmlEncode("כניסה מוקדמת? ") + "</input><br/>");
+			body.println("<br/><input type = 'checkbox' name = 'disabled_parking' " + (disabled_parking ? "checked" : "") + ">" + HUtils.htmlEncode("חניית נכים? ") + "</input><br/>");
 			body.println("<br/>");
 			body.println("<input type = 'submit' value = '" + HUtils.htmlEncode("עדכון פרטי כרטיס") + "'/>");
 			body.println("</form>");
