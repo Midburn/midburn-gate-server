@@ -306,8 +306,8 @@ public class OfficeServlet implements Container
 							"<a href=/?action=pre_mark_entered&ticket_id=" +
 									resultSet.getInt("ticket_id") + ">" + HUtils.htmlEncode("אשר") + "</a>"
 							: "") + "</td><td>" +
-					resultSet.getInt("ticket_id") + "</td><td>" +
 					resultSet.getInt("order_number") + "</td><td>" +
+					resultSet.getInt("ticket_id") + "</td><td>" +
 					HUtils.htmlEncode(resultSet.getString("ticket_type")) + "</td><td>" +
 					HUtils.htmlEncode(resultSet.getString("Name")) + "</td><td>" +
 					"<a href='/?action=search&search_string=" + resultSet.getString("mail") + "'>" + resultSet.getString("mail") + "</a></td><td>" +
