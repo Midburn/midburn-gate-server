@@ -18,11 +18,11 @@ CREATE TABLE tickets
   disabled_parking TINYINT DEFAULT 0
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 
-insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, early_arrival, disabled_parking)
-  values (-100, -999999, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '*FAKE TICKET*', 'Adult Ticket', 1, 0);
-insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, Entrance_Date, early_arrival)
+insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, early_arrival)
+  values (-100, -999999, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '*FAKE TICKET*', 'Adult Ticket', 1);
+insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, Entrance_Date, early_arrival, disabled_parking)
   values (-200, -999999, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', '*FAKE TICKET*', 'Adult Ticket', '1999-01-01 12:34:56', 1, 1);
-insert into tickets(ticket_id, order_number, barcode, Name, ticket_type)
+insert into tickets(ticket_id, order_number, barcode, Name, ticket_type, disabled_parking)
   values (-300, -999999, 'cccccccccccccccccccccccccccccccc', '*FAKE TICKET*', 'Adult Ticket', 1);
 
 CREATE TABLE shifts
@@ -48,7 +48,8 @@ CREATE TABLE tickets_log
   cancelled TINYINT DEFAULT 0 NOT NULL,
   entrance_date DATETIME,
   shift_id INT,
-  early_arrival TINYINT DEFAULT 0
+  early_arrival TINYINT DEFAULT 0,
+  disabled_parking TINYINT DEFAULT 0
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 --CREATE USER midburn IDENTIFIED BY 'midburn';
