@@ -450,16 +450,10 @@ public class OfficeServlet implements Container
 		HUtils.generateResponseHeader(response);
 		HUtils.generateHtmlHeader(body);
 		body.println("<a href='/?action=logout'>" + HUtils.htmlEncode("התנתק") +"</a>");
-//		if (Main.EARLY_ARRIVAL_MODE)
-//		{
-//			body.println("<h2>" + HUtils.htmlEncode("סטסטוס הגעה: מוקדמת") + "</h2>");
-//			body.println("<a href='/?action=change_arrival_mode'>" + HUtils.htmlEncode("העבר למצב הגעה רגיל") +"</a>");
-//		}
-//		else
-//		{
-//			body.println("<h2>" + HUtils.htmlEncode("סטסטוס הגעה: רגילה") + "</h2>");
-//			body.println("<a href='/?action=change_arrival_mode'>" + HUtils.htmlEncode("העבר למצב הגעה מוקדמת") +"</a>");
-//		}
+		if (Main.earlyArrivalMode)
+		{
+			body.println("<h2>" + HUtils.htmlEncode("כניסה עם אישור הגעה מוקדמת בלבד") + "</h2>");
+		}
 		body.println("<form action = '/' >");
 		body.println("<h2>" + HUtils.htmlEncode("חיפוש לפי שם / אימייל") + "</h2>");
 		body.println("<input name = 'search_string' />");

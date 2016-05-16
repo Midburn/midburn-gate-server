@@ -32,8 +32,8 @@ public class Administration
                     } catch (NumberFormatException ignored) {}
 
                     String query = "INSERT INTO tickets " +
-                            "(ticket_id, order_number, mail, Name, barcode, ticket_type, buyer_mail, document_id, early_arrival) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            "(ticket_id, order_number, mail, Name, barcode, ticket_type, buyer_mail, document_id, early_arrival, disabled_parking) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement statement = connection.prepareStatement(query);
                     statement.setInt(1, Integer.parseInt(csvRecord.get("Ticket #")));
                     statement.setInt(2, order_number);
@@ -44,6 +44,7 @@ public class Administration
                     statement.setString(7, csvRecord.get("Buyers E-mail"));
                     statement.setString(8, csvRecord.get("Docment id"));
                     statement.setBoolean(9, (csvRecord.get("Arrive early").equals("1")));
+                    statement.setBoolean(10, (csvRecord.get("disabledParking").equals("1")));
 
                     statement.execute();
                     statement.close();

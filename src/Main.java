@@ -43,6 +43,7 @@ public class Main
     	}
     	catch (Exception e)
     	{
+            System.out.println("make sure config.txt is present!");
     		usageMSG();
     		System.exit(0);
     	}
