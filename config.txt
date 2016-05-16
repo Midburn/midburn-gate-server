@@ -1,0 +1,7 @@
+{
+    "client_port": "8080",
+	"server_port": "9090",
+	"db_connection_string": "jdbc:mysql://localhost/midburn?useUnicode=true&characterEncoding=utf8",
+	"admin_password": "admin",
+	"admin_username": "admin"
+}
