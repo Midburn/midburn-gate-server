@@ -288,6 +288,7 @@ public class OfficeServlet implements Container
 			String entrance_date = "";
 			Time entrance_time = resultSet.getTime("Entrance_Date");
 			Date entrance_date_obj = resultSet.getDate("Entrance_Date");
+			String ticket_type = resultSet.getString("ticket_type");
 			if (entrance_date_obj != null && entrance_time != null)
 			{
 				entrance_date = entrance_time.toString() + " " + entrance_date_obj.toString();
@@ -295,7 +296,7 @@ public class OfficeServlet implements Container
 
 
 			body.println("<tr><td>" +
-					(entrance_date.isEmpty()
+					(entrance_date.isEmpty() && (ticket_type.contains("Adult") || ticket_type.contains("Child") || ticket_type.contains("Junior"))
 							?
 							"<a href=/?action=update_ticket_1&ticket=" +
 									resultSet.getInt("ticket_id") + "&order=" +
@@ -308,7 +309,7 @@ public class OfficeServlet implements Container
 							: "") + "</td><td>" +
 					resultSet.getInt("order_number") + "</td><td>" +
 					resultSet.getInt("ticket_id") + "</td><td>" +
-					HUtils.htmlEncode(resultSet.getString("ticket_type")) + "</td><td>" +
+					HUtils.htmlEncode(ticket_type) + "</td><td>" +
 					HUtils.htmlEncode(resultSet.getString("Name")) + "</td><td>" +
 					"<a href='/?action=search&search_string=" + resultSet.getString("mail") + "'>" + resultSet.getString("mail") + "</a></td><td>" +
 					resultSet.getString("document_id") + "</td><td>" +
